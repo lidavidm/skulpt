@@ -494,6 +494,15 @@ Compiler.prototype.ccall = function (e) {
     var func = this.vexpr(e.func);
     var args = this.vseqexpr(e.args);
 
+    if (e.func && e.func.id && e.func.id.v === "super") {
+        out ("$ret;"); // This forces a failure if $ret isn't defined
+        out ("console.log(self);")
+        out ("$ret = self.ob$type.superClass_;")
+        this._checkSuspension(e);
+
+        return this._gr("call", "$ret");
+    }
+
     //print(JSON.stringify(e, null, 2));
     if (e.keywords.length > 0 || e.starargs || e.kwargs) {
         kwarray = [];
@@ -715,6 +724,7 @@ Compiler.prototype.vexpr = function (e, data, augvar, augsubs) {
                     return this._gr("lattr", "$ret");
                 case Load:
                     out("$ret = Sk.abstr.gattr(", val, ",'", mangled, "', true);");
+                    out("if ($ret.im_self) { $ret.im_self = self; }");
                     this._checkSuspension(e);
                     return this._gr("lattr", "$ret");
                 case AugStore:

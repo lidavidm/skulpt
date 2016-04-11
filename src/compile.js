@@ -496,7 +496,6 @@ Compiler.prototype.ccall = function (e) {
 
     if (e.func && e.func.id && e.func.id.v === "super") {
         out ("$ret;"); // This forces a failure if $ret isn't defined
-        out ("console.log(self);")
         out ("$ret = self.ob$type.superClass_;")
         this._checkSuspension(e);
 
@@ -723,8 +722,12 @@ Compiler.prototype.vexpr = function (e, data, augvar, augsubs) {
                     this._checkSuspension(e);
                     return this._gr("lattr", "$ret");
                 case Load:
-                    out("$ret = Sk.abstr.gattr(", val, ",'", mangled, "', true);");
-                    // out("console.log('Attr access of " + val "');");
+                    out("$ret = Sk.abstr.gattr(", val, ",'", mangled, "', true, self);");
+                    // out("console.log('Attr access of " + mangled + "');");
+                    // out("console.log(self);");
+                    // out("console.log(self.$d);");
+                    // out("console.log($ret);");
+                    // out("console.log($ret.im_self);");
                     out("if (self && self.$d && $ret.im_self) { $ret.im_self = self; }");
                     this._checkSuspension(e);
                     return this._gr("lattr", "$ret");

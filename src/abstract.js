@@ -803,7 +803,7 @@ Sk.abstr.objectSetItem = function (o, key, v, canSuspend) {
 goog.exportSymbol("Sk.abstr.objectSetItem", Sk.abstr.objectSetItem);
 
 
-Sk.abstr.gattr = function (obj, nameJS, canSuspend) {
+Sk.abstr.gattr = function (obj, nameJS, canSuspend, overrideSelf) {
     var ret, f;
     var objname = Sk.abstr.typeName(obj);
 
@@ -828,8 +828,13 @@ Sk.abstr.gattr = function (obj, nameJS, canSuspend) {
 
             if (ret === undefined) {
                 f = obj.tp$getattr("__getattr__");
-
                 if (f !== undefined) {
+                    // Allow the caller to override the method's self
+                    // value
+                    if (f.im_self && overrideSelf) {
+                        f.im_self = overrideSelf;
+                    }
+
                     ret = Sk.misceval.callsimOrSuspend(f, new Sk.builtin.str(nameJS));
                 }
             }
